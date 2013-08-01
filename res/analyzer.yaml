@@ -30,7 +30,10 @@ broot.ingress.mod.Entry:
     PortalUpgrade_onStatsTableCreated: [null, V, $PortalUpgradeUi, $Table]
     PortalUpgrade_onDispose: [null, V]
     PortalUpgrade_getResonatorBrowserHeight: [null, I, I]
+    HackAnimationStage_getTotalTime: [null, F, F]
+    HackController_shouldShowAnimation: [null, Z]
     ClientFeatureKnobBundle_getEnableNewHackAnimations: [null, Z, Z]
+    ClientFeatureKnobBundle_getEnableNewDeployUi: [null, Z, Z]
     InventoryItemRenderer_shouldRotate: [null, Z]
     InventoryItemRenderer_simplifyItems: [null, Z]
     ItemActionHandler_recycleAnimationsEnabled: [null, Z]
@@ -140,6 +143,7 @@ com.nianticproject.ingress.shared.location.LocationUtils:
 com.nianticproject.ingress.knobs.ClientFeatureKnobBundle:
   fields:
     enableNewHackAnimations: [enableNewHackAnimations, Z]
+    enableNewDeployUi: [enableNewDeployUi, Z]
 
   is_real_name: true
 
@@ -295,7 +299,7 @@ com.nianticproject.ingress.common.ui.SubActivityManager:
 com.nianticproject.ingress.common.ui.BaseSubActivity:
   methods:
     getName: [d, $String]
-    getRenderer: [H, $UiRenderer]
+    getRenderer: [J, $UiRenderer]
     onResume: [a, V]
     onPause: [e, V]
 
@@ -371,13 +375,13 @@ com.nianticproject.ingress.common.scanner.ScannerStateManager:
 
   find_by_string: STATE_NO_PORTALS
 
-com.nianticproject.ingress.common.scanner.render.PortalParticleRender:
+com.nianticproject.ingress.common.scanner.visuals.PortalParticleRender:
   fields:
     enabled: [a, Z]
 
   find_by_string: Portal Particle Render
 
-#com.nianticproject.ingress.common.scanner.render.EnergyGlobVisuals:
+#com.nianticproject.ingress.common.scanner.visuals.EnergyGlobVisuals:
 #  fields:
 #    initEnabled: [a, Z]
 #
@@ -386,13 +390,28 @@ com.nianticproject.ingress.common.scanner.render.PortalParticleRender:
 #
 #  find_by_string: '"EnergyGlobVisuals.draw"'
 
-com.nianticproject.ingress.common.scanner.render.ScannerDestinationVisuals:
+com.nianticproject.ingress.common.scanner.visuals.ScannerDestinationVisuals:
   find_by_string: "CLEAR"
+
+com.nianticproject.ingress.common.scanner.visuals.HackController:
+  methods:
+    animationsIsDone: [a, Z, F]
+  find_by_string: '"HackController.getItems"'
+
+com.nianticproject.ingress.common.scanner.visuals.HackAnimationStage:
+  methods:
+    getTotalTime: [a, F]
+
+  find:
+    - [by_string, false, true, '"POPUP"']
+    - [by_string, false, true, '"SPIN"']
+    - [by_string, false, true, '"PAUSE"']
+    - [by_string, false, true, '"DISINTEGRATE"']
 
 com.nianticproject.ingress.common.scanner.modes.ScannerTouchHandler:
   methods:
     longPress: [longPress, Z, F, F]
-  find_by_string: '0x415c28f6'
+  find_by_string: '0x3ea3d70a'
 
 com.nianticproject.ingress.common.scanner.modes.ZoomInMode:
   super: $UiMode
@@ -402,16 +421,12 @@ com.nianticproject.ingress.common.scanner.modes.PortalDialogMode:
   super: $ZoomInMode
   find_by_string: new-instance [pv]\d+, ${PortalInfoDialog}
 
-com.nianticproject.ingress.common.ui.elements.PortalInfoDialog:
-  super: $UiLayer
+#com.nianticproject.ingress.common.scanner.modes.ResourceZoomMode:
+#  super: $BasePlayerListener
+#  methods:
+#    AcquireResource: [a, V, $PlayerLocation]
 
-  fields:
-    portalComponent: [s, Lcom/nianticproject/ingress/gameentity/components/Portal;]
-
-  methods:
-    onPlayerLocationChanged: [q, V]
-
-  find_by_string: "Unknown Portal"
+#  find_by_string: '"ResourceZoomMode:playerListener"'
 
 com.nianticproject.ingress.common.scanner.modes.RepeatedActionUi:
   super: $UiLayer
@@ -421,6 +436,17 @@ com.nianticproject.ingress.common.scanner.modes.RepeatedActionUi:
   find:
     - [by_string, false, true, DONE]
     - [by_string, false, true, primary-action]
+
+com.nianticproject.ingress.common.ui.elements.PortalInfoDialog:
+  super: $UiLayer
+
+  fields:
+    portalComponent: [t, Lcom/nianticproject/ingress/gameentity/components/Portal;]
+
+  methods:
+    onPlayerLocationChanged: [m, V]
+
+  find_by_string: "Unknown Portal"
 
 ### PORTAL UPGRADE
 
@@ -433,7 +459,9 @@ com.nianticproject.ingress.common.upgrade.PortalUpgradeUi:
   super: $UiLayer
   fields:
     activity: [a, $PortalUpgradeActivity]
-  find_by_string: portal-details-stats
+  find:
+    - [by_string, false, true, portal-details-stats]
+    - [by_string, false, true, '"Range: "']
 
 com.nianticproject.ingress.common.upgrade.ResonatorBrowser:
   find_by_string: resonatorBrowser

@@ -111,14 +111,6 @@ def main():
 
     edit.find_line(r' .+"Owner: "')
     edit.find_line(
-        r' invoke-virtual \{([pv]\d+), ([pv]\d+)\}, Lcom/a/a/c;->b\(Ljava/lang/Integer;\)L.+;',
-        where='down')
-    edit.comment_line()
-    edit.find_line(
-        r' invoke-virtual \{([pv]\d+)\}, Lcom/badlogic/gdx/scenes/scene2d/ui/Table;->row\(\)L.+;',
-        where='down')
-    edit.comment_line()
-    edit.find_line(
         r' return-object ([pv]\d+)',
         where='down')
     tab = edit.vars[0]
@@ -192,7 +184,27 @@ def main():
     edit.find_line(r' iget-boolean v0, p0, %s' % expr('$ClientFeatureKnobBundle->enableNewHackAnimations'))
     edit.prepare_to_insert()
     edit.add_invoke_entry('ClientFeatureKnobBundle_getEnableNewHackAnimations', 'v0', 'v0')
+
+    edit.find_line(r' iget-boolean v0, p0, %s' % expr('$ClientFeatureKnobBundle->enableNewDeployUi'))
+    edit.prepare_to_insert()
+    edit.add_invoke_entry('ClientFeatureKnobBundle_getEnableNewDeployUi', 'v0', 'v0')
     edit.save()
+
+    edit = edit_cls('HackController')
+    edit.find_line(r' const-string/jumbo v1, " acquired"')
+    edit.find_prologue(where="up")
+    edit.prepare_to_insert()
+    edit.add_invoke_entry('HackController_shouldShowAnimation', '', 'v0')
+    edit.add_ret_if_result(False)
+    edit.save()
+    
+    edit = edit_cls('HackAnimationStage')
+    edit.find_method_def('getTotalTime')
+    edit.find_line(r' return ([pv]\d+)')
+    edit.prepare_to_insert_before()
+    edit.add_invoke_entry('HackAnimationStage_getTotalTime', edit.vars[0], edit.vars[0])
+    edit.save()
+
 
     #stop inventory item rotation
     edit = edit_cls('InventoryItemRenderer')
